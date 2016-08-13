@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <link rel="stylesheet" type="text/css" href="propertygrid.css">
+    <div id="propertyGroup">
+        <select id="appSelector" style="visibility: visible;">
+            <option value="Whitney">Whitney</option>
+            <option value="LineFuck">LineFuck</option>
+        </select>
+        <div id="propertyGrid" style="visibility: visible;">
+        	<div class="groupHeader" id="group-header-app">App Settings</div>
+            <table id="group-properties-app">
+                <tbody>
+                    <tr>
+                        <td><span class="propName">Position</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="position-control" class="propControl slider" value="0" min="0" max="1" step="0.0001">
+                        </td>
+                        <td>
+                            <input type="text" id="position-value" class="propValue" value="0">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Point Count</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="pointCount-control" class="propControl slider" value="60" min="2" max="1000" step="1">
+                        </td>
+                        <td>
+                            <input type="text" id="pointCount-value" class="propValue" value="60">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Duration</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="duration-control" class="propControl slider" value="60" min="0.001" max="6000" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="duration-value" class="propValue" value="60">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Min Radius</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="minRadius-control" class="propControl slider" value="0.01" min="0" max="0.25" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="minRadius-value" class="propValue" value="0.01">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Max Radius</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="maxRadius-control" class="propControl slider" value="0.1" min="0" max="0.25" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="maxRadius-value" class="propValue" value="0.1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Min Distance</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="minDistance-control" class="propControl slider" value="0.01" min="0" max="2" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="minDistance-value" class="propValue" value="0.01">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Max Distance</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="maxDistance-control" class="propControl slider" value="0.9" min="0" max="2" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="maxDistance-value" class="propValue" value="0.9">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Zoom</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="zoom-control" class="propControl slider" value="1" min="0.5" max="5" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="zoom-value" class="propValue" value="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Line Width</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="range" id="lineWidth-control" class="propControl slider" value="1" min="1" max="5" step="0.001">
+                        </td>
+                        <td>
+                            <input type="text" id="lineWidth-value" class="propValue" value="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Draw Dots</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="drawDots-control" checked="">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Draw Lines</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="drawLines-control" checked="">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Lines Over Dots</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="linesOverDots-control">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Reverse Draw</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="reverseDraw-control">
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><span class="propName">Url</span></td>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="text" id="url-control" class="textProp" value="">
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

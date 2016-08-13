@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Doodle</title>
+	<script type="text/javascript" src="dist/doodle-latest.js"></script>
+	<link rel="stylesheet" type="text/css" href="doodle.css">
+</head>
+<body>
+	<div id="presetEditor">
+		<div id="renderArea"></div>
+		<div id="propertyGroup">
+			<select id="appSelector">
+				<option value="Whitney">Whitney</option>
+				<option value="LineFuck">LineFuck</option>
+			</select>
+			<div id="propertyGrid"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function getURLParameter(name) {
+			return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+		}
+
+		function setApp(name) {
+			switch (name) {
+				case 'LineFuck':
+					editor.app = new LineFuck();
+					break;
+				case 'Whitney':
+					editor.app = new Whitney();
+					break;
+			}
+		}
+
+		var editor = new PresetEditor('presetEditor', 'propertyGrid', 'renderArea');
+
+		var selector = document.getElementById('appSelector');
+		selector.addEventListener('change', (evt) => {
+			setApp(evt.target.value);
+		});
+
+		let appType = getURLParameter('type');
+		if (appType) {
+			selector.value = appType;
+			setApp(appType);
+			let props = editor.propertyGrid.schema.properties;
+			for (let key in props) {
+				let prop = props[key];
+				let propVal = getURLParameter(key);
+				editor.propertyGrid.setValue(key, propVal);
+			}
+
+			editor.updateUrl();
+		} else {
+			editor.app = new Whitney();
+		}
+
+		editor.run();
+	</script>
+</body>
+</html>
