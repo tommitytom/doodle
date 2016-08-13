@@ -81,6 +81,21 @@ function deepClone(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
 
+function camelize(str) {
+  return str.replace(/(?:^\w|[A-Z]|\b\w)/g, function(letter, index) {
+    return index == 0 ? letter.toLowerCase() : letter.toUpperCase();
+  }).replace(/\s+/g, '');
+}
+
+function createState(schema) {
+	let state = {};
+	for (let key in schema.properties) {
+		state[key] = schema.properties[key].default;
+	}
+
+	return state;
+}
+
 export default class PropertyGrid {
 	constructor(target) {
 		if (typeof target === 'string') {
@@ -95,9 +110,9 @@ export default class PropertyGrid {
 
 	clear() {
 		this._target.innerHTML = '';
-		this._schema = null;
-		this._data = null;
-		this._state = null;
+		this._schema = {};
+		this._state = {};
+		this._data = {};
 		this._elements = {};
 		this._modulations = {};
 	}
@@ -120,47 +135,21 @@ export default class PropertyGrid {
 		return this._schema;
 	}
 
-	set schema(schema) {
-		for (let key in schema.properties) {
-			let prop = schema.properties[key];
-			if (prop.type === 'number') {
-				if (prop.default === undefined) {
-					prop.default = 0;
-				}
+	addGroup(name, schema) {
+		SchemaUtil.validateSchema(schema);
 
-				if (prop.minimum === undefined) {
-					prop.minimum = 0;
-				}
-
-				if (prop.maximum === undefined) {
-					prop.maximum = 100;
-				}
-
-				if (prop.step === undefined) {
-					prop.step = 1;
-				}
-
-				if (prop.overflow === undefined) {
-					prop.overflow = 'clip';
-				}
-			} else if (prop.type === 'boolean') {
-				if (prop.default === undefined) {
-					prop.default = false;
-				}
-			} else if (prop.type === 'string') {
-				if (prop.default === undefined) {
-					prop.default = '';
-				}
-			}
-		}
-
-		this._schema = schema;
-
-		this._state = {};
-		this.setMissingDefaults();
-		this._data = deepClone(this._state);
+		let state = createState(schema),
+			data = deepClone(state);
+		
+		this._schema[name] = schema;
+		this._state[name] = state;
+		this._data[name] = data;
+		this._modulations[name] = {};
+		this._elements[name] = {};
 
 		this.update();
+
+		return data;
 	}
 
 	get data() {
@@ -175,46 +164,38 @@ export default class PropertyGrid {
 		this._listeners.push(func);
 	}
 
-	setMissingDefaults() {
-		for (let key in this._schema.properties) {
-			let prop = this._schema.properties[key];
-			if (prop.default !== undefined && !this._state.hasOwnProperty(key)) {
-				this._state[key] = prop.default;
-			}
-		}
-	}
-
-	setValueLabel(name, value) {
-		let elem = this._elements[name];
+	setValueLabel(group, name, value) {
+		let elem = this._elements[group][name];
 		setLabelValue(elem.value, value);
 	}
 
-	modulateValue(name, mod) {
-		let value = this._state[name] + mod;
-		value = SchemaUtil.validateValue(this._schema.properties[name], value);
-		this._modulations[name] = mod;
-		this._data[name] = value;
-		this.setValueLabel(name, value);
+	modulateValue(group, name, mod) {
+		let value = this._state[group][name] + mod;
+		value = SchemaUtil.validateValue(this._schema[group].properties[name], value);
+		
+		this._modulations[group][name] = mod;
+		this._data[group][name] = value;
+		this.setValueLabel(group, name, value);
 	}
 
-	applyModulation(name, value) {
-		let mod = this._modulations[name];
+	applyModulation(group, name, value) {
+		let mod = this._modulations[group][name];
 		if (mod !== undefined) {
-			value = SchemaUtil.validateValue(this._schema.properties[name], value + mod);
+			value = SchemaUtil.validateValue(this._schema[group].properties[name], value + mod);
 		}
 
 		return value;
 	}
 
-	setValue(name, value, settings = {}) {
+	setValue(group, name, value, settings = {}) {
 		if (this._data) {
-			let prop = this._schema.properties[name];
+			let prop = this._schema[group].properties[name];
 			value = SchemaUtil.validateValue(prop, value);
 
-			this._state[name] = value;
-			this._data[name] = this.applyModulation(name, value);
+			this._state[group][name] = value;
+			this._data[group][name] = this.applyModulation(group, name, value);
 
-			let elem = this._elements[name];
+			let elem = this._elements[group][name];
 			if (settings.updateControl !== false) {
 				setControlValue(elem.control, value);
 			}
@@ -231,14 +212,14 @@ export default class PropertyGrid {
 		}
 	}
 
-	_updateProperty(key, elem, sourceElem) {
+	_updateProperty(group, name, elem, sourceElem) {
 		if (this._data) {
 			let value = getElementValue(sourceElem, elem.schema);
-			this._state[key] = value;
-			this._data[key] = this.applyModulation(key, value);
+			this._state[group][name] = value;
+			this._data[group][name] = this.applyModulation(group, name, value);
 
 			for (let i = 0; i < this._listeners.length; i++) {
-				this._listeners[i](key, value);
+				this._listeners[i](name, value);
 			}
 
 			return value;
@@ -246,81 +227,108 @@ export default class PropertyGrid {
 	}
 
 	update() {
-		let code = this.drawComponents(this._schema.properties);
+		let code = '';
+		for (let groupName in this._schema) {
+			code += this._drawGroup(groupName, this._schema[groupName]);
+		}
+
 		this._target.innerHTML = code;
 
-		this._elements = {};
-		for (let key in this._schema.properties) {
-			let elem = {
-				schema: this._schema.properties[key],
-				control: document.getElementById(key + '-control'),
-				value: document.getElementById(key + '-value')
-			};
+		for (let groupName in this._schema) {
+			let group = this._schema[groupName];
+			for (let propName in group.properties) {
+				let elemPrefix = camelize(groupName) + '-' + propName;
+				let elem = {
+					schema: group.properties[propName],
+					control: document.getElementById(elemPrefix + '-control'),
+					value: document.getElementById(elemPrefix + '-value')
+				};
 
-			this._elements[key] = elem;
+				this._elements[groupName][propName] = elem;
 
-			if (elem.value) {
-				elem.value.addEventListener('change', (evt) => { 
-					let value = this._updateProperty(key, elem, evt.target);
-					if (value !== null) {
-						setControlValue(elem.control, value);
-					}
-				});
+				if (elem.value) {
+					elem.value.addEventListener('change', (evt) => { 
+						let value = this._updateProperty(groupName, propName, elem, evt.target);
+						if (value !== null) {
+							setControlValue(elem.control, value);
+						}
+					});
+				}
+
+				if (elem.control.type === 'range') {
+					onRangeChange(elem.control, (evt) => { 
+						let value = this._updateProperty(groupName, propName, elem, evt.target);
+						if (value !== null && elem.value) {
+							setLabelValue(elem.value, value);
+						}
+					});
+				} else {
+					elem.control.addEventListener('change', (evt) => { 
+						this._updateProperty(groupName, propName, elem, evt.target);
+					});
+				}			
 			}
-
-			if (elem.control.type === 'range') {
-				onRangeChange(elem.control, (evt) => { 
-					let value = this._updateProperty(key, elem, evt.target);
-					if (value !== null && elem.value) {
-						setLabelValue(elem.value, value);
-					}
-				});
-			} else {
-				elem.control.addEventListener('change', (evt) => { 
-					this._updateProperty(key, elem, evt.target);
-				});
-			}			
 		}
+
+		
+		
 
 		this.refresh();
 	}
 
 	refresh() {
-		for (let key in this._schema.properties) {
-			let prop = this._schema.properties[key];
-			let stateValue = prop.default;
-			let dataValue = stateValue;
+		for (let groupName in this._schema) {
+			let group = this._schema[groupName];
+			for (let propName in group.properties) {
+				let prop = group.properties[propName],
+					stateValue = prop.default,
+					dataValue = stateValue;
 
-			if (this._state && this._state.hasOwnProperty(key)) {
-				stateValue = this._state[key];
-				dataValue = this._data[key];
-			}
+				if (this._state[groupName].hasOwnProperty(propName)) {
+					stateValue = this._state[groupName][propName];
+					dataValue = this._data[groupName][propName];
+				}
 
-			let elem = this._elements[key];
-			if (elem) {
-				setControlValue(elem.control, stateValue);
-				setLabelValue(elem.value, dataValue);
+				let elem = this._elements[propName];
+				if (elem) {
+					setControlValue(elem.control, stateValue);
+					setLabelValue(elem.value, dataValue);
+				}
 			}
 		}
 	}
 
-	drawComponents(properties) {
+	_drawGroup(name, schema) {
+		let camelName = camelize(name),
+			components = this._drawComponents(camelName, schema.properties);
+
+		return `
+			<div class="groupHeader" id="group-header-${camelName}">${name}</div>
+			<div class="groupContent" id="group-content-${camelName}">
+				${components}
+			</div>
+		`;
+	}
+
+	_drawComponents(groupName, properties) {
 		let code = '<table>';
-		for (let key in this._schema.properties) {
-			let prop = this._schema.properties[key];
+		for (let key in properties) {
+			let prop = properties[key];
 			let renderer = componentRenderers[prop.type];
 			if (renderer) {
-				let elem = renderer(key, prop),
+				let namePrefix = `${groupName}-${key}`,
+					elem = renderer(namePrefix, prop),
 					name = formatName(key);
 
 				code += `
 				<tr>
 					<td><span class="propName">${name}</span><td>
 					<td>${elem}</td>
-					<td>`;
+					<td>
+				`;
 
 				if (prop.type === 'number') {
-					code += `<input type="text" id="${key}-value" class="propValue" value="${prop.default}" />`;
+					code += `<input type="text" id="${namePrefix}-value" class="propValue" value="${prop.default}" />`;
 				}
 
 				code += '</td></tr>';

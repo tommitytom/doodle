@@ -2,32 +2,17 @@ import AppRunner from './AppRunner';
 import * as SchemaUtil from './SchemaUtil';
 import SineModulator from './SineModulator';
 import Whitney from './Whitney';
+import Preset from './Preset';
 
 let appId = 0;
 
 export default class PresetEditor {
-	addModulator(mod) {
-		this._modulators.push(mod);
-		return this._modulators.length - 1;
-	}
-
 	constructor(containerId, propertyGridId, renderAreaId) {
 		this._container = document.getElementById(containerId);
 		this._renderArea = document.getElementById(renderAreaId);
 		this._propertyGrid = new PropertyGrid(propertyGridId);
 
-		this._modulators = [];
-		this._modConnections = [];
 		this._lastUpdate = 0;
-
-		this._appRunner = new AppRunner();
-		this._appRunner.onUpdate(changed => {
-			for (let i = 0; i < changed.length; i++) {
-				let name = changed[i];
-				let value = this._appRunner.app.data[name];
-				this._propertyGrid.setValue(name, value);
-			}
-		});
 
 		this._propertyGrid.listen((name, value) => {
 			this.updateUrl();
@@ -57,6 +42,15 @@ export default class PresetEditor {
 				this.randomize();
 			}
 		}, false);
+
+		this._preset = new Preset();
+		this._preset.onUpdate(changed => {
+			for (let i = 0; i < changed.length; i++) {
+				let name = changed[i];
+				let value = this._appRunner.app.data[name];
+				this._propertyGrid.setValue(name, value);
+			}
+		});
 	}
 
 	updateUrl() {
@@ -72,12 +66,7 @@ export default class PresetEditor {
 			}
 		}
 
-		this._propertyGrid.setValue('url', url);
-	}
-
-	clearModulations() {
-		this._modulators = [];
-		this._modConnections = [];
+		this._propertyGrid.setValue('App Settings', 'url', url);
 	}
 
 	set app(app) {
@@ -85,7 +74,7 @@ export default class PresetEditor {
 		this._renderArea.innerHTML = app.createElement(id);
 		app.element = document.getElementById(id);
 
-		this.clearModulations();
+		this._preset.clearModulations();
 		this._propertyGrid.clear();
 
 		let schema = JSON.parse(JSON.stringify(app.schema));
@@ -94,20 +83,21 @@ export default class PresetEditor {
 			readOnly: true
 		};
 
-		this._propertyGrid.schema = schema;
-		app.data = this._propertyGrid.data;
+		app.data = this._propertyGrid.addGroup('App Settings', schema);
 
-		this._appRunner.app = app;
 		this.updateUrl();
 
 		if (app instanceof Whitney) {
-			this.addModulator(new SineModulator(0.2));
-			this.linkModulator(0, 'maxRadius', 0.2);
+			this._preset.addModulator(new SineModulator(0.2));
+			this._preset.linkModulator(0, 'maxRadius', 0.2);
 		}
+
+		this._preset.schema = this._propertyGrid.schema['App Settings'];
+		this._preset.app = app;
 	}
 
-	get app() {
-		return this._appRunner.app;
+	get preset() {
+		return this._preset;
 	}
 
 	get propertyGrid() {
@@ -142,37 +132,15 @@ export default class PresetEditor {
 		window.requestAnimationFrame(ts => { this._updateFrame(ts); });
 	}
 
-	linkModulator(idx, name, mult) {
-		this._modConnections.push({
-			modulator: this._modulators[idx],
-			name: name,
-			mult: mult
-		});
-	}
-
-	_processModulators(delta) {
-		this._modulators.map(mod => {
-			mod.update(delta);
-		});
-
-		this._modConnections.map(conn => {
-			let prop = this._propertyGrid.schema.properties[conn.name],
-				range = prop.maximum - prop.minimum,
-				val = conn.modulator.value * range * conn.mult;
-
-			this._propertyGrid.modulateValue(conn.name, val);
-		});
-	}
-
 	_updateFrame(timeStamp) {
 		let delta = timeStamp - this._lastUpdate;
 		if (this._lastUpdate === 0) {
 			delta = 0;
 		}
 
-		this._processModulators(delta);
+		this._preset.update(delta);
+		this._preset.render();
 
-		this._appRunner.update(delta);
 		this._lastUpdate = timeStamp;
 
 		window.requestAnimationFrame(ts => { this._updateFrame(ts); });
