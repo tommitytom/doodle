@@ -64,6 +64,20 @@ export default {
 			default: 1, 
 			step: 0.001
 		},
+		dotAlpha: {
+			type: 'number', 
+			minimum: 0,	
+			maximum: 1, 
+			default: 1,
+			step: 0.001
+		},
+		lineAlpha: {
+			type: 'number', 
+			minimum: 0,	
+			maximum: 1, 
+			default: 1,
+			step: 0.001
+		},
 		drawDots: {
 			type: 'boolean', 
 			default: true

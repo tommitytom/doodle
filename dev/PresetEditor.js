@@ -10,6 +10,15 @@ const APP_SETTINGS_GROUP_NAME = 'App Settings';
 const MODULATORS_GROUP_NAME = 'Modulators';
 const MODULATOR_COUNT = 3;
 
+function getKeyDetails(key) {
+	let name = key.substring(0, key.length - 1);
+	let idx = key.substring(key.length - 1, key.length);
+	return {
+		name: name,
+		idx: parseInt(idx)
+	};
+}
+
 export default class PresetEditor {
 	constructor(containerId, propertyGridId, renderAreaId) {
 		this._container = document.getElementById(containerId);
@@ -85,7 +94,7 @@ export default class PresetEditor {
 				type: 'number',
 				default: 1,
 				minimum: 0.0001,
-				maximum: 60,
+				maximum: 45,
 				step: 0.001,
 			};
 
@@ -103,6 +112,8 @@ export default class PresetEditor {
 				default: 'maxDistance'
 			};
 		}
+
+		this._modSchema = modSchema;
 
 		this._modGroup = this._propertyGrid.addGroup('Modulators', {
 			properties: modSchema
@@ -125,7 +136,7 @@ export default class PresetEditor {
 			if (prop.randomize !== false) {
 				let value = this._randomValue(prop);
 				this._preset.setProperty(key, value);
-				this._propertyGrid.setValue(key, value);
+				this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, key, value);
 			}
 		}
 
@@ -133,10 +144,17 @@ export default class PresetEditor {
 	}
 
 	loadPreset(settings) {
-		for (let key in settings) {
-			let value = settings[key];
+		for (let key in settings.app) {
+			let value = settings.app[key];
 			this._preset.setProperty(key, value);
 			this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, key, value);
+		}
+
+		for (let key in settings.mod) {
+			let desc = getKeyDetails(key);
+			let value = settings.mod[key];
+			this._preset.setModulatorProperty(desc.idx, desc.name, value);
+			this._propertyGrid.setValue(MODULATORS_GROUP_NAME, key, value);
 		}
 	}
 
@@ -170,14 +188,11 @@ export default class PresetEditor {
 	}
 
 	_setModulatorProperty(elem) {
-		let name = elem.name.substring(0, elem.name.length - 1);
-		let idx = elem.name.substring(elem.name.length - 1, elem.name.length);
-		idx = parseInt(idx);
-
+		let desc = getKeyDetails(elem.name);
 		if (name === 'target') {
-			this._preset.setModulatorTarget(idx, elem.value);
+			this._preset.setModulatorTarget(desc.idx, elem.value);
 		} else {
-			this._preset.setModulatorProperty(idx, name, elem.value);
+			this._preset.setModulatorProperty(desc.idx, desc.name, elem.value);
 		}
 	}
 
@@ -193,12 +208,9 @@ export default class PresetEditor {
 		}
 
 		for (let key in this._modGroup.schema.properties) {
-			let name = key.substring(0, key.length - 1);
-			let idx = key.substring(key.length - 1, key.length);
-			idx = parseInt(idx);
-
-			if (this._preset.getModulatorProperty(idx, 'target') !== '') {
-				let value = this._preset.getModulatorProperty(idx, name);
+			let desc = getKeyDetails(key);
+			if (this._preset.getModulatorProperty(desc.idx, 'target') !== '') {
+				let value = this._preset.getModulatorProperty(desc.idx, desc.name);
 				url += `&m.${key}=${value}`;
 			}
 		}

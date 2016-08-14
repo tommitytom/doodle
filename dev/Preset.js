@@ -37,10 +37,13 @@ export default class Preset {
 	}
 
 	setModulatorProperty(idx, name, value) {
-		this._modValues[name] = 0;
-		this._modulatedData[target] = this._data[target];
-
 		let mod = this._modulators[idx];
+
+		if (name === 'target') {
+			this._modValues[mod.target] = 0;
+			this._modulatedData[mod.target] = this._data[mod.target];
+		}
+
 		mod[name] = value;
 	}
 

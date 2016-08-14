@@ -8,14 +8,14 @@ function rgba(r, g, b, a) {
 	return `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
-function getColor(ratio, mod) {
-	let pi2 = Math.PI * 2 * mod,
-		a = pi2 * ratio,
-		r = (0.5 + Math.cos(a) * 0.5) * 255,
-		g = (0.5 + Math.cos(a + pi2 / 3.0) * 0.5) * 255,
-		b = (0.5 + Math.cos(a + pi2 * 2.0 / 3.0) * 0.5) * 255;
+function getColor(ratio, alpha) {
+	let pi2 = Math.PI * 2,
+		v = pi2 * ratio,
+		r = (0.5 + Math.cos(v) * 0.5) * 255,
+		g = (0.5 + Math.cos(v + pi2 / 3.0) * 0.5) * 255,
+		b = (0.5 + Math.cos(v + pi2 * 2.0 / 3.0) * 0.5) * 255;
 
-	return rgba(r, g, b, 1);
+	return rgba(r, g, b, alpha);
 };
 
 export default class Whitney extends CanvasApp {
@@ -88,8 +88,8 @@ export default class Whitney extends CanvasApp {
 			distance = (data.maxDistance - ratio * distanceRange) * data.zoom * 0.5,
 			phase = data.position * Math.PI * 2 * (idx + 1) % (Math.PI * 2),
 			radiusRange = data.maxRadius - data.minRadius,
-			dotColour = getColor(1 - ratio, 1),
-			lineColour = getColor(1 - ratio, 1);
+			dotColour = getColor(1 - ratio, data.dotAlpha),
+			lineColour = getColor(1 - ratio, data.lineAlpha);
 
 		this._points[arrIdx] = {
 			x: Math.cos(phase) * distance,

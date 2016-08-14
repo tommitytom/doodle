@@ -44,8 +44,9 @@
 			selector.value = appType;
 			setApp(appType);
 
+			let settings = { app: {}, mod: {} };
+
 			let props = editor.preset.schema.properties;
-			let settings = {};
 			for (let key in props) {
 				let prop = props[key];
 				let val = getURLParameter('a.' + key);
@@ -56,7 +57,22 @@
 						val = val === 'true';
 					}
 
-					settings[key] = val;
+					settings.app[key] = val;
+				}
+			}
+
+			props = editor._modSchema;
+			for (let key in props) {
+				let prop = props[key];
+				let val = getURLParameter('m.' + key);
+				if (val !== null) {
+					if (prop.type === 'number') {
+						val = parseFloat(val);
+					} else if (prop.type === 'boolean') {
+						val = val === 'true';
+					}
+
+					settings.mod[key] = val;
 				}
 			}
 
