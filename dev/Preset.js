@@ -20,6 +20,10 @@ export default class Preset {
 		return this._schema;
 	}
 
+	get app() {
+		return this._app;
+	}
+
 	setProperty(name, value) {
 		let modValue = value;
 		let mod = this._modValues[name];

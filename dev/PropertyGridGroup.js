@@ -7,7 +7,7 @@ const GROUP_CONTENT_PREFIX = 'group-content-';
 let elementId = 0;
 
 function createElement(name, schema) {
-	let id = name + elementId++;
+	let id = 'prop-' + name + '-' + elementId++;
 	if (schema.type === 'number') {
 		return new PropertyElements.Slider(name, id, schema);
 	}
@@ -63,11 +63,11 @@ export default class PropertyGridGroup {
 	}
 
 	collapse() {
-		this._content.style.visibility = 'hidden';
+		this._content.style.display = 'none';
 	}
 
 	expand() {
-		this._content.style.visibility = 'visible';
+		this._content.style.display = 'block';
 	}
 
 	onChange(listener) {
@@ -92,7 +92,7 @@ export default class PropertyGridGroup {
 		}
 
 		this._header.addEventListener('click', evt => {
-			if (this._content.style.visibility !== 'visible') {
+			if (this._content.style.display === 'none') {
 				this.expand();
 			} else {
 				this.collapse();

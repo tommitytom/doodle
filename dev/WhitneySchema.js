@@ -24,14 +24,14 @@ export default {
 		minRadius: { 	
 			type: 'number', 
 			minimum: 0, 
-			maximum: 0.25, 
+			maximum: 0.15, 
 			default: 0.01, 
 			step: 0.001 
 		},
 		maxRadius: {  	
 			type: 'number', 
 			minimum: 0, 
-			maximum: 0.25, 
+			maximum: 0.15, 
 			default: 0.1, 
 			step: 0.001 
 		},

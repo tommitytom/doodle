@@ -6,6 +6,8 @@ import Whitney from './Whitney';
 import Preset from './Preset';
 
 let appId = 0;
+
+const APP_SELECT_GROUP_NAME = 'App Select';
 const APP_SETTINGS_GROUP_NAME = 'App Settings';
 const MODULATORS_GROUP_NAME = 'Modulators';
 const MODULATOR_COUNT = 3;
@@ -28,40 +30,45 @@ export default class PresetEditor {
 		this._preset = null;
 		this._modGroup = null;
 		this._lastUpdate = 0;
+		this._appTypes = {};
 
 		this._propertyGrid.listen((group, elem) => {
 			if (group.name === APP_SETTINGS_GROUP_NAME) {
 				this._preset.setProperty(elem.name, elem.value);
 			} else if (group.name === MODULATORS_GROUP_NAME) {
 				this._setModulatorProperty(elem);
+			} else if (group.name === APP_SELECT_GROUP_NAME) {
+				if (elem.name === 'app') {
+					this.app = elem.value;
+				}
 			}
 
 			this._updateUrl();
 		});
 
 		window.addEventListener('keypress', (evt) => {
-			if (evt.code === 'Space') {
-				this._appRunner.paused = !this._appRunner.paused;
-			}
-
-			if (evt.code === 'KeyZ') {
-				this._propertyGrid.visible = !this._propertyGrid.visible;
-				let selectorStyle = document.getElementById('appSelector').style;
-
-				if (this._propertyGrid.visible) {
-					selectorStyle.visibility = 'visible';
-				} else {
-					selectorStyle.visibility = 'hidden';
-				}
-			}
-
-			if (evt.code === 'KeyR') {
-				this.randomize();
+			switch (evt.code) {
+				case 'Space': 	this._appRunner.paused = !this._appRunner.paused;			break;
+				case 'KeyZ': 	this._propertyGrid.visible = !this._propertyGrid.visible;	break;
+				case 'KeyR': 	this.randomize();											break;
 			}
 		}, false);
 	}
 
+	addAppType(name, appType) {
+		this._appTypes[name] = appType;
+	}
+
 	set app(app) {
+		if (typeof app === 'string') {
+			let appType = this._appTypes[app];
+			if (!appType) {
+				throw new Error('App type unknown');
+			}
+
+			app = new appType();
+		}
+
 		this._preset = null;
 		this._propertyGrid.clear();
 
@@ -74,6 +81,17 @@ export default class PresetEditor {
 			type: 'string',
 			readOnly: true
 		};
+
+		let typeKeys = Object.keys(this._appTypes);
+		this._propertyGrid.addGroup(APP_SELECT_GROUP_NAME, {
+			properties: {
+				app: {
+					type: 'string',
+					enum: typeKeys,
+					default: app.constructor.name
+				}
+			}
+		});
 
 		let settingsGroup = this._propertyGrid.addGroup(APP_SETTINGS_GROUP_NAME, schema);
 		this._preset = new Preset(app, settingsGroup.schema);
@@ -109,7 +127,7 @@ export default class PresetEditor {
 			modSchema['target' + i] = {
 				type: 'string',
 				enum: numberProps,
-				default: 'maxDistance'
+				default: ''
 			};
 		}
 
@@ -140,8 +158,10 @@ export default class PresetEditor {
 			let prop = this.preset.schema.properties[key];
 			if (prop.randomize !== false) {
 				let value = this._randomValue(prop);
-				this._preset.setProperty(key, value);
-				this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, key, value);
+				if (value !== null) {
+					this._preset.setProperty(key, value);
+					this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, key, value);
+				}
 			}
 		}
 
@@ -170,9 +190,20 @@ export default class PresetEditor {
 				val -= val % prop.step;
 				return val;
 			}
+
 			case 'boolean':
 				return Math.random() > 0.5;
+
+			case 'string':
+				if (prop.enum) {
+					let idx = Math.round(Math.random() * prop.enum.length - 0.5);
+					return prop.enum[idx];
+				}
+
+				break;
 		}
+
+		return null;
 	}
 
 	run() {
@@ -203,7 +234,7 @@ export default class PresetEditor {
 
 	_updateUrl() {
 		let url = 'http://tommitytom.co.uk/doodle?';
-		url += 'type=' + document.getElementById('appSelector').value;
+		url += 'type=' + this.preset.app.constructor.name;
 
 		for (let key in this._preset.schema.properties) {
 			if (key !== 'url' && key !== 'position') {

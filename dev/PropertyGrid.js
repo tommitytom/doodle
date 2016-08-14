@@ -35,12 +35,6 @@ export default class PropertyGrid {
 		this._visible = value;
 	}
 
-	_handleChange(group, elem) {
-		for (let i = 0; i < this._listeners.length; i++) {
-			this._listeners[i](group, elem);
-		}
-	}
-
 	addGroup(name, schema) {
 		SchemaUtil.validateSchema(schema);
 
@@ -124,5 +118,11 @@ export default class PropertyGrid {
 
 	listen(func) {
 		this._listeners.push(func);
+	}
+
+	_handleChange(group, elem) {
+		for (let i = 0; i < this._listeners.length; i++) {
+			this._listeners[i](group, elem);
+		}
 	}
 }
