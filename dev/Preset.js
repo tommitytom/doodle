@@ -24,6 +24,10 @@ export default class Preset {
 		return this._app;
 	}
 
+	get data() {
+		return this._data;
+	}
+
 	get modulators() {
 		return this._modulators;
 	}

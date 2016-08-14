@@ -225,6 +225,13 @@ export default class PresetEditor {
 			this._propertyGrid.setLabel(APP_SETTINGS_GROUP_NAME, mod.target, val);
 		}
 
+		if (this._preset.app.outputs) {
+			this._preset.app.outputs.map(name => {
+				let val = this._preset.modulatedData[name];
+				this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, name, val);
+			});
+		}
+
 		this._lastUpdate = timeStamp;
 
 		window.requestAnimationFrame(ts => { this._updateFrame(ts); });
