@@ -113,6 +113,7 @@ canvas {
 	color: white;
 	font-family: myFirstFont;
 	font-size: 14px;
+  min-width: 200px;
 }
 
 .propValue {

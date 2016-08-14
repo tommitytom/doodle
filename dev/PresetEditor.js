@@ -217,7 +217,14 @@ export default class PresetEditor {
 		}
 
 		this._preset.update(delta);
-		this._propertyGrid.setLabel(APP_SETTINGS_GROUP_NAME, 'maxRadius', this._preset._modulatedData.maxRadius);
+
+		for (var i = 0; i < this._preset.modulators.length; i++) {
+			let mod = this._preset.modulators[i],
+				val = this._preset.modulatedData[mod.target];
+
+			this._propertyGrid.setLabel(APP_SETTINGS_GROUP_NAME, mod.target, val);
+		}
+
 		this._lastUpdate = timeStamp;
 
 		window.requestAnimationFrame(ts => { this._updateFrame(ts); });
@@ -225,11 +232,15 @@ export default class PresetEditor {
 
 	_setModulatorProperty(elem) {
 		let desc = getKeyDetails(elem.name);
-		if (name === 'target') {
-			this._preset.setModulatorTarget(desc.idx, elem.value);
-		} else {
-			this._preset.setModulatorProperty(desc.idx, desc.name, elem.value);
+		if (desc.name === 'target') {
+			let mod = this._preset.modulators[desc.idx];
+			if (mod.target !== '') {
+				let val = this._preset.getProperty(mod.target);
+				this._propertyGrid.setLabel(APP_SETTINGS_GROUP_NAME, mod.target, val);
+			}
 		}
+
+		this._preset.setModulatorProperty(desc.idx, desc.name, elem.value);
 	}
 
 	_updateUrl() {

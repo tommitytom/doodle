@@ -24,6 +24,14 @@ export default class Preset {
 		return this._app;
 	}
 
+	get modulators() {
+		return this._modulators;
+	}
+
+	get modulatedData() {
+		return this._modulatedData;
+	}
+
 	setProperty(name, value) {
 		let modValue = value;
 		let mod = this._modValues[name];
@@ -68,10 +76,6 @@ export default class Preset {
 	clearModulations() {
 		this._modulators = [];
 		this._modValues = {};
-	}
-
-	setModulatorTarget(idx, name) {
-		this._modulators[idx].target = name;
 	}
 
 	linkModulator(idx, name) {
