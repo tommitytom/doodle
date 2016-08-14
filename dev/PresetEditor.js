@@ -1,10 +1,14 @@
-import AppRunner from './AppRunner';
 import * as SchemaUtil from './SchemaUtil';
+import * as Util from './Util';
+import AppRunner from './AppRunner';
 import SineModulator from './SineModulator';
 import Whitney from './Whitney';
 import Preset from './Preset';
 
 let appId = 0;
+const APP_SETTINGS_GROUP_NAME = 'App Settings';
+const MODULATORS_GROUP_NAME = 'Modulators';
+const MODULATOR_COUNT = 3;
 
 export default class PresetEditor {
 	constructor(containerId, propertyGridId, renderAreaId) {
@@ -12,14 +16,18 @@ export default class PresetEditor {
 		this._renderArea = document.getElementById(renderAreaId);
 		this._propertyGrid = new PropertyGrid(propertyGridId);
 
+		this._preset = null;
+		this._modGroup = null;
 		this._lastUpdate = 0;
 
-		this._propertyGrid.listen((name, value) => {
-			this.updateUrl();
-
-			if (this.app && this.app.onChanged) {
-				this.app.onChanged(name, value);
+		this._propertyGrid.listen((group, elem) => {
+			if (group.name === APP_SETTINGS_GROUP_NAME) {
+				this._preset.setProperty(elem.name, elem.value);
+			} else if (group.name === MODULATORS_GROUP_NAME) {
+				this._setModulatorProperty(elem);
 			}
+
+			this._updateUrl();
 		});
 
 		window.addEventListener('keypress', (evt) => {
@@ -42,58 +50,65 @@ export default class PresetEditor {
 				this.randomize();
 			}
 		}, false);
-
-		this._preset = new Preset();
-		this._preset.onUpdate(changed => {
-			for (let i = 0; i < changed.length; i++) {
-				let name = changed[i];
-				let value = this._appRunner.app.data[name];
-				this._propertyGrid.setValue(name, value);
-			}
-		});
-	}
-
-	updateUrl() {
-		let url = 'http://tommitytom.co.uk/doodle?';
-		url += 'type=' + document.getElementById('appSelector').value;
-
-		if (this._propertyGrid.schema && this._propertyGrid.state) {
-			for (let key in this._propertyGrid.schema.properties) {
-				if (key !== 'url') {
-					let value = this._propertyGrid.state[key];
-					url += `&${key}=${value}`;
-				}
-			}
-		}
-
-		this._propertyGrid.setValue('App Settings', 'url', url);
 	}
 
 	set app(app) {
-		let id = 'app' + appId++;
-		this._renderArea.innerHTML = app.createElement(id);
-		app.element = document.getElementById(id);
-
-		this._preset.clearModulations();
+		this._preset = null;
 		this._propertyGrid.clear();
 
-		let schema = JSON.parse(JSON.stringify(app.schema));
+		app.id = 'app' + appId++;
+		this._renderArea.innerHTML = app.render();
+		app.updateElements();
+
+		let schema = Util.deepClone(app.schema);
 		schema.properties.url = {
 			type: 'string',
 			readOnly: true
 		};
 
-		app.data = this._propertyGrid.addGroup('App Settings', schema);
+		let settingsGroup = this._propertyGrid.addGroup(APP_SETTINGS_GROUP_NAME, schema);
+		this._preset = new Preset(app, settingsGroup.schema);
 
-		this.updateUrl();
-
-		if (app instanceof Whitney) {
-			this._preset.addModulator(new SineModulator(0.2));
-			this._preset.linkModulator(0, 'maxRadius', 0.2);
+		let numberProps = [''];
+		for (let key in settingsGroup.schema.properties) {
+			let prop = settingsGroup.schema.properties[key];
+			if (prop.type === 'number') { 
+				numberProps.push(key);
+			}
 		}
 
-		this._preset.schema = this._propertyGrid.schema['App Settings'];
-		this._preset.app = app;
+		let modSchema = {};
+		for (let i = 0; i < MODULATOR_COUNT; i++) {
+			this._preset.addModulator(new SineModulator());
+
+			modSchema['freq' + i] = {
+				type: 'number',
+				default: 1,
+				minimum: 0.0001,
+				maximum: 60,
+				step: 0.001,
+			};
+
+			modSchema['range' + i] = {
+				type: 'number',
+				default: 0.25,
+				minimum: 0,
+				maximum: 1,
+				step: 0.001
+			};
+
+			modSchema['target' + i] = {
+				type: 'string',
+				enum: numberProps,
+				default: 'maxDistance'
+			};
+		}
+
+		this._modGroup = this._propertyGrid.addGroup('Modulators', {
+			properties: modSchema
+		});
+
+		this._updateUrl();
 	}
 
 	get preset() {
@@ -105,15 +120,24 @@ export default class PresetEditor {
 	}
 
 	randomize() {
-		for (let key in this._propertyGrid.schema.properties) {
-			let prop = this._propertyGrid.schema.properties[key];
+		for (let key in this.preset.schema.properties) {
+			let prop = this.preset.schema.properties[key];
 			if (prop.randomize !== false) {
 				let value = this._randomValue(prop);
+				this._preset.setProperty(key, value);
 				this._propertyGrid.setValue(key, value);
 			}
 		}
 
-		this.updateUrl();
+		this._updateUrl();
+	}
+
+	loadPreset(settings) {
+		for (let key in settings) {
+			let value = settings[key];
+			this._preset.setProperty(key, value);
+			this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, key, value);
+		}
 	}
 
 	_randomValue(prop) {
@@ -139,10 +163,46 @@ export default class PresetEditor {
 		}
 
 		this._preset.update(delta);
-		this._preset.render();
-
+		this._propertyGrid.setLabel(APP_SETTINGS_GROUP_NAME, 'maxRadius', this._preset._modulatedData.maxRadius);
 		this._lastUpdate = timeStamp;
 
 		window.requestAnimationFrame(ts => { this._updateFrame(ts); });
+	}
+
+	_setModulatorProperty(elem) {
+		let name = elem.name.substring(0, elem.name.length - 1);
+		let idx = elem.name.substring(elem.name.length - 1, elem.name.length);
+		idx = parseInt(idx);
+
+		if (name === 'target') {
+			this._preset.setModulatorTarget(idx, elem.value);
+		} else {
+			this._preset.setModulatorProperty(idx, name, elem.value);
+		}
+	}
+
+	_updateUrl() {
+		let url = 'http://tommitytom.co.uk/doodle?';
+		url += 'type=' + document.getElementById('appSelector').value;
+
+		for (let key in this._preset.schema.properties) {
+			if (key !== 'url') {
+				let value = this._preset.getProperty(key);
+				url += `&a.${key}=${value}`;
+			}
+		}
+
+		for (let key in this._modGroup.schema.properties) {
+			let name = key.substring(0, key.length - 1);
+			let idx = key.substring(key.length - 1, key.length);
+			idx = parseInt(idx);
+
+			if (this._preset.getModulatorProperty(idx, 'target') !== '') {
+				let value = this._preset.getModulatorProperty(idx, name);
+				url += `&m.${key}=${value}`;
+			}
+		}
+
+		this._propertyGrid.setValue(APP_SETTINGS_GROUP_NAME, 'url', url);
 	}
 }

@@ -8,7 +8,7 @@
 <body>
 	<div id="presetEditor">
 		<div id="renderArea"></div>
-		<div id="propertyGroup">
+		<div id="propertyGroup" style="overflow: auto">
 			<select id="appSelector">
 				<option value="Whitney">Whitney</option>
 				<option value="LineFuck">LineFuck</option>
@@ -43,14 +43,24 @@
 		if (appType) {
 			selector.value = appType;
 			setApp(appType);
-			let props = editor.propertyGrid.schema.properties;
+
+			let props = editor.preset.schema.properties;
+			let settings = {};
 			for (let key in props) {
 				let prop = props[key];
-				let propVal = getURLParameter(key);
-				editor.propertyGrid.setValue(key, propVal);
+				let val = getURLParameter('a.' + key);
+				if (val !== null) {
+					if (prop.type === 'number') {
+						val = parseFloat(val);
+					} else if (prop.type === 'boolean') {
+						val = val === 'true';
+					}
+
+					settings[key] = val;
+				}
 			}
 
-			editor.updateUrl();
+			editor.loadPreset(settings);
 		} else {
 			editor.app = new Whitney();
 		}

@@ -33,7 +33,7 @@ export default class Whitney extends CanvasApp {
 		return WhitneySchema;
 	}
 
-	render(delta) {
+	update(delta) {
 		this.fitToContainer();
 
 		let data = this._data,

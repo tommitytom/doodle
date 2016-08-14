@@ -52,3 +52,12 @@ export function validateSchema(schema) {
 		}
 	}
 }
+
+export function createState(schema) {
+	let state = {};
+	for (let key in schema.properties) {
+		state[key] = schema.properties[key].default;
+	}
+
+	return state;
+}

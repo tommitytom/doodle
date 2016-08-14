@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Doodle</title>
+	<script type="text/javascript" src="dist/doodle-latest.js"></script>
+	<link rel="stylesheet" type="text/css" href="doodle.css">
+</head>
+<body>
+	<div id="presetEditor">
+		<div id="renderArea"></div>
+		<div id="propertyGroup">
+			<select id="appSelector">
+				<option value="Whitney">Whitney</option>
+				<option value="LineFuck">LineFuck</option>
+			</select>
+			<div id="propertyGrid"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		let propertyGrid = new PropertyGrid('propertyGrid');
+		propertyGrid.addGroup('Test Group', {
+			properties: {
+				position: {
+					type: 'number',
+					minimum: 0,	
+					maximum: 1, 
+					default: 0, 
+					step: 0.0001
+				},
+				pointCount: {
+					type: 'number',
+					default: 60,
+					minimum: 2,
+					maximum: 1000,
+					step: 1
+				},
+				duration: { 
+					type: 'number',
+					default: 60,
+					minimum: 0.001,
+					maximum: 500,
+					step: 0.001
+				},
+				minRadius: { 	
+					type: 'number', 
+					minimum: 0, 
+					maximum: 0.25, 
+					default: 0.01, 
+					step: 0.001 
+				},
+				maxRadius: {  	
+					type: 'number', 
+					minimum: 0, 
+					maximum: 0.25, 
+					default: 0.1, 
+					step: 0.001 
+				},
+				minDistance: {  
+					type: 'number', 
+					minimum: 0, 
+					maximum: 2, 
+					default: 0.01, 
+					step: 0.001 
+				},
+				maxDistance: {  
+					type: 'number', 
+					minimum: 0, 
+					maximum: 2, 
+					default: 0.9, 
+					step: 0.001 
+				},
+				zoom: { 		
+					type: 'number', 
+					minimum: 0.5, 
+					maximum: 5, 
+					default: 1, 
+					step: 0.001,
+					randomize: false
+				},
+				lineWidth: {  	
+					type: 'number', 
+					minimum: 1,	
+					maximum: 5, 
+					default: 1, 
+					step: 0.001
+				},
+				drawDots: {
+					type: 'boolean', 
+					default: true
+				},
+				drawLines: {
+					type: 'boolean', 
+					default: true
+				},
+				linesOverDots: {
+					type: 'boolean', 
+					default: false
+				},
+				reverseDraw: {
+					type: 'boolean', 
+					default: false
+				}
+			}
+		});
+
+		propertyGrid.listen((group, elem) => {
+			console.log(group, elem);
+		});
+	</script>
+</body>
+</html>

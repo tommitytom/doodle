@@ -18,7 +18,7 @@ export default {
 			type: 'number',
 			default: 60,
 			minimum: 0.001,
-			maximum: 6000,
+			maximum: 500,
 			step: 0.001
 		},
 		minRadius: { 	

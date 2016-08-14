@@ -3,12 +3,13 @@ import Modulator from './Modulator';
 const PI2 = Math.PI * 2;
 
 export default class SineModulator extends Modulator {
-	constructor(freq = 1) {
+	constructor(freq = 1, range = 1) {
 		super();
 		
-		self._phase = 0;
-		self._freq = freq;
-		self._mod = 1000 / freq;
+		this._freq = freq;
+		this._range = range;
+		this._mod = 1000 / freq;
+		this._phase = 0;
 	}
 
 	get freq() {
@@ -17,14 +18,22 @@ export default class SineModulator extends Modulator {
 
 	set freq(value) {
 		this._freq = value;
-		self._mod = 1000 / value;
+		this._mod = 1000 / value;
+	}
+
+	get range() {
+		return this._range;
+	}
+
+	set range(value) {
+		this._range = value;
 	}
 
 	get value() {
-		return Math.sin(self._phase * PI2);
+		return Math.sin(this._phase * PI2) * this._range;
 	}
 
 	update(delta) {
-		self._phase = (self._phase + delta / self._mod) % 1;
+		this._phase = (this._phase + delta / this._mod) % 1;
 	}
 }

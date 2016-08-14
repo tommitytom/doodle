@@ -21,7 +21,7 @@ export default class LineFuck extends CanvasApp {
 		return LineFuckSchema;
 	}
 
-	render(delta) {
+	update(delta) {
 		this.fitToContainer();
 
 		let canvas = this._canvas,

@@ -8,17 +8,8 @@ export default class CanvasApp extends App {
 		this._context = null;
 	}
 
-	get element() {
-		return this._canvas;
-	}
-
-	set element(value) {
-		this._canvas = value;
-		this._context = value.getContext('2d');
-	}
-
-	createElement(id) {
-		return `<canvas id="${id}"></canvas>`;
+	render() {
+		return `<canvas id="${this.id}"></canvas>`;
 	}
 
 	fitToContainer() {
@@ -28,5 +19,10 @@ export default class CanvasApp extends App {
 		// ...then set the internal size to match
 		this._canvas.width  = this._canvas.offsetWidth;
 		this._canvas.height = this._canvas.offsetHeight;
+	}
+
+	updateElements() {
+		this._canvas = document.getElementById(this.id);
+		this._context = this._canvas.getContext('2d');
 	}
 }
