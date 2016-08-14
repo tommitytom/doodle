@@ -1,6 +1,7 @@
 import * as SchemaUtil from './SchemaUtil';
 import * as Util from './Util';
 import PropertyGridGroup from './PropertyGridGroup';
+import Clipboard from 'clipboard';
 
 export default class PropertyGrid {
 	constructor(target) {
@@ -8,6 +9,7 @@ export default class PropertyGrid {
 			target = document.getElementById(target);
 		}
 
+		this._clipboard = new Clipboard('.url');
 		this._target = target;
 		this._listeners = [];
 		this._visible = true;

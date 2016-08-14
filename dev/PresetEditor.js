@@ -119,6 +119,11 @@ export default class PresetEditor {
 			properties: modSchema
 		});
 
+		let urlElement = settingsGroup.getElement('url').element;
+		urlElement.addEventListener('focus', evt => {
+			urlElement.select();
+		});
+
 		this._updateUrl();
 	}
 
@@ -201,7 +206,7 @@ export default class PresetEditor {
 		url += 'type=' + document.getElementById('appSelector').value;
 
 		for (let key in this._preset.schema.properties) {
-			if (key !== 'url') {
+			if (key !== 'url' && key !== 'position') {
 				let value = this._preset.getProperty(key);
 				url += `&a.${key}=${value}`;
 			}

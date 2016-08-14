@@ -78,6 +78,10 @@ export default class PropertyGridGroup {
 		this._listener(elem);
 	}
 
+	getElement(name) {
+		return this._elements[name];
+	}
+
 	updateElements() {
 		this._header = document.getElementById(`${GROUP_HEADER_PREFIX}${this.id}`);
 		this._content = document.getElementById(`${GROUP_CONTENT_PREFIX}${this.id}`);
