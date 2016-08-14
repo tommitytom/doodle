@@ -141,3 +141,12 @@ canvas {
   font-size: 14px;
   background-color: #6699ff;
 }
+
+.dropdown {
+  border: 1px solid #828282;
+  font-family: myFirstFont;
+  font-size: 14px;
+  color: #fff;
+  background: #444;
+  padding: 0px;
+}

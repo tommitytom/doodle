@@ -191,7 +191,7 @@ class OptionSelect extends PropertyGridElement {
 
 	render() {
 		let selectedParam = 'selected="selected "';
-		let code = `<select id="${this.id}">`;
+		let code = `<select class="dropdown" id="${this.id}">`;
 		for (let i = 0; i < this.schema.enum.length; i++) {
 			let isSelected = '';
 			let val = this.schema.enum[i];
