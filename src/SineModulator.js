@@ -7,6 +7,7 @@ export default class SineModulator extends Modulator {
 		super();
 		
 		this._freq = freq;
+		this._mult = 1;
 		this._range = range;
 		this._mod = 1000 / freq;
 		this._phase = 0;
@@ -18,7 +19,16 @@ export default class SineModulator extends Modulator {
 
 	set freq(value) {
 		this._freq = value;
-		this._mod = 1000 / value;
+		this._updateMod();
+	}
+
+	get freqMult() {
+		return this._mult;
+	}
+
+	set freqMult(v) {
+		this._mult = v;
+		this._updateMod();
 	}
 
 	get range() {
@@ -35,5 +45,9 @@ export default class SineModulator extends Modulator {
 
 	update(delta) {
 		this._phase = (this._phase + delta / this._mod) % 1;
+	}
+
+	_updateMod() {
+		this._mod = 1000 / (this._freq * this._mult);
 	}
 }

@@ -1,4 +1,4 @@
-import CanvasApp from './CanvasApp';
+import CanvasApp from '../CanvasApp';
 import WhitneySchema from './WhitneySchema';
 
 function rgba(r, g, b, a) {
@@ -39,10 +39,6 @@ export default class Whitney extends CanvasApp {
 		let data = this._data,
 			canvas = this._canvas,
 			ctx = this._context;
-
-		if (this._lastUpdate === 0) {
-			delta = 0;
-		}
 
 		if (data.reverseDraw === true) {
 			for (let i = 0; i < data.pointCount; ++i) {

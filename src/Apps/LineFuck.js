@@ -1,4 +1,4 @@
-import CanvasApp from './CanvasApp';
+import CanvasApp from '../CanvasApp';
 import LineFuckSchema from './LineFuckSchema';
 
 function drawLine(ctx, sx, sy, tx, ty) {

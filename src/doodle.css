@@ -1,11 +1,5 @@
-@font-face {
-	font-family: myFirstFont;
-	src: url(bitstream-vera.ttf);
-}
-
 input[type=range].slider {
   -webkit-appearance: none;
-  width: 250px;
   margin: 4.6px 0;
 }
 input[type=range].slider:focus {
@@ -111,14 +105,14 @@ canvas {
 }
 .propName {
 	color: white;
-	font-family: myFirstFont;
+	font-family: 'Open Sans', sans-serif;
 	font-size: 14px;
   min-width: 200px;
 }
 
 .propValue {
   color: white;
-  font-family: myFirstFont;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   background-color: rgba(70, 70, 70, 0.9);
   padding: 0px;
@@ -126,9 +120,19 @@ canvas {
   width: 50px;
 }
 
+.colorLabel {
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 14px;
+  background-color: rgba(70, 70, 70, 0.9);
+  padding: 0px;
+  border: 0px;
+  width: 35px;
+}
+
 .textProp {
   color: white;
-  font-family: myFirstFont;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   background-color: rgba(70, 70, 70, 0.9);
   padding: 0px;
@@ -138,16 +142,24 @@ canvas {
 
 .groupHeader {
   color: white;
-  font-family: myFirstFont;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   background-color: #6699ff;
 }
 
 .dropdown {
   border: 1px solid #828282;
-  font-family: myFirstFont;
+  font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   color: #fff;
   background: #444;
   padding: 0px;
+}
+
+.propControl {
+  width: 250px;
+}
+
+.colorSlider {
+  width: 50px;
 }

@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+- '6'
+before_script:
+- npm install -g gulp
+script: gulp dist
+after_success: gulp upload --host $FTP_HOST --user $FTP_USER --pass $FTP_PASSWORD --remote $FTP_REMOTE
+notifications:
+  email: false

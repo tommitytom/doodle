@@ -1,3 +1,8 @@
+function easeIn(val, min, max, strength) {
+	val /= max;
+	return (max - 1) * Math.pow(val, strength) + min;
+};
+
 class PropertyGridElement {
 	constructor(name, id, schema) {
 		this._name = name;
@@ -55,6 +60,43 @@ class PropertyGridElement {
 	}
 }
 
+class RgbaSelector extends PropertyGridElement {
+	constructor(name, id, schema) {
+		super(name, id, schema);
+		this._controls = null;
+	}
+
+	set value(value) {
+		
+	}
+
+	get value() {
+		
+	}
+
+	render() {
+		return `
+		<div id=${this.id}>
+			<input
+				type="range" 
+				id="${this.id}-control" 
+				class="propControl slider"
+				value="${this.schema.default}"
+				min="${this.schema.minimum}" 
+				max="${this.schema.maximum}"
+				step="${this.schema.step}"
+			/>
+			<input
+				type="text" 
+				id="${this.id}-label" 
+				class="propValue" 
+				value="${this.schema.default}"
+			/>
+		</div>
+		`;
+	}
+}
+
 class Slider extends PropertyGridElement {
 	constructor(name, id, schema) {
 		super(name, id, schema);
@@ -88,7 +130,7 @@ class Slider extends PropertyGridElement {
 		this._control.addEventListener('input', evt => {
 			receivedInput = true;
 
-			let value = evt.target.value;
+			let value = this._scaleValue(evt.target.value);
 			if (value !== lastValue) {
 				this._label.value = value;
 				this.raiseChange();
@@ -98,10 +140,18 @@ class Slider extends PropertyGridElement {
 
 		this._control.addEventListener('change', evt => {
 			if (!receivedInput) {
-				this._label.value = evt.target.value;
+				this._label.value = this._scaleValue(evt.target.value);
 				this.raiseChange();
 			}
 		});
+	}
+
+	_scaleValue(value) {
+		if (this.schema.scale === 'log') {
+			return easeIn(value, this.schema.minimum, this.schema.maximum, this.schema.scaleStrength);
+		}
+
+		return value;
 	}
 
 	render() {

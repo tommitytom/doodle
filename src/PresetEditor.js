@@ -1,9 +1,10 @@
-import * as SchemaUtil from './SchemaUtil';
-import * as Util from './Util';
+import PropertyGrid from './PropertyGrid';
 import AppRunner from './AppRunner';
 import SineModulator from './SineModulator';
-import Whitney from './Whitney';
 import Preset from './Preset';
+
+import * as SchemaUtil from './SchemaUtil';
+import * as Util from './Util';
 
 let appId = 0;
 
@@ -55,6 +56,10 @@ export default class PresetEditor {
 		}, false);
 	}
 
+	hideSettings() {
+		this._propertyGrid.visible = false;
+	}
+
 	addAppType(name, appType) {
 		this._appTypes[name] = appType;
 	}
@@ -77,6 +82,10 @@ export default class PresetEditor {
 		app.updateElements();
 
 		let schema = Util.deepClone(app.schema);
+		if (!schema.properties) {
+			schema.properties = {};
+		}
+
 		schema.properties.url = {
 			type: 'string',
 			readOnly: true
@@ -110,15 +119,23 @@ export default class PresetEditor {
 
 			modSchema['freq' + i] = {
 				type: 'number',
-				default: 1,
+				default: 0.5,
 				minimum: 0.0001,
+				maximum: 1,
+				step: 0.0001,
+			};
+
+			modSchema['freqMult' + i] = {
+				type: 'number',
+				default: 1,
+				minimum: 1,
 				maximum: 45,
 				step: 0.001,
 			};
 
 			modSchema['range' + i] = {
 				type: 'number',
-				default: 0.25,
+				default: 0.1,
 				minimum: 0,
 				maximum: 1,
 				step: 0.001

@@ -13,3 +13,7 @@ export function camelize(str) {
 		return index === 0 ? letter.toLowerCase() : letter.toUpperCase();
 	}).replace(/\s+/g, '');
 }
+
+export function getURLParameter(name) {
+	return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [,''])[1].replace(/\+/g, '%20')) || null;
+}
