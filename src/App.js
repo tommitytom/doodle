@@ -2,6 +2,7 @@ export default class App {
 	constructor() {
 		this._id = null;
 		this._data = null;
+		this._typeName = null;
 	}
 
 	get id() {
@@ -18,5 +19,9 @@ export default class App {
 
 	set data(value) {
 		this._data = value;
+	}
+
+	get typeName() {
+		return this._typeName;
 	}
 }

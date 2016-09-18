@@ -54,7 +54,7 @@ window.onload = function() {
 
 		editor.loadPreset(settings);
 	} else {
-		editor.app = new Whitney();
+		editor.app = 'Whitney';
 	}
 
 	editor.run();

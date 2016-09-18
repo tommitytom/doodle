@@ -64,15 +64,14 @@ export default class PresetEditor {
 		this._appTypes[name] = appType;
 	}
 
-	set app(app) {
-		if (typeof app === 'string') {
-			let appType = this._appTypes[app];
-			if (!appType) {
-				throw new Error('App type unknown');
-			}
-
-			app = new appType();
+	set app(appName) {
+		let appType = this._appTypes[appName];
+		if (!appType) {
+			throw new Error('App type unknown');
 		}
+
+		let app = new appType();
+		app._typeName = appName;
 
 		this._preset = null;
 		this._propertyGrid.clear();
@@ -97,7 +96,7 @@ export default class PresetEditor {
 				app: {
 					type: 'string',
 					enum: typeKeys,
-					default: app.constructor.name
+					default: app._typeName
 				}
 			}
 		});
@@ -269,7 +268,7 @@ export default class PresetEditor {
 
 	_updateUrl() {
 		let url = 'http://tommitytom.co.uk/doodle?';
-		url += 'type=' + this.preset.app.constructor.name;
+		url += 'type=' + this.preset.app.typeName;
 
 		for (let key in this._preset.schema.properties) {
 			if (key !== 'url' && key !== 'position') {
