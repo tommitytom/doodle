@@ -117,8 +117,8 @@ export default class Whitney extends CanvasApp {
 			ctx.beginPath();
 			ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
 			ctx.fillStyle = p.dotColour;
-			ctx.fill();
 			ctx.closePath();
+			ctx.fill();
 		}
 	}
 
@@ -131,6 +131,7 @@ export default class Whitney extends CanvasApp {
 			ctx.lineTo(points[i + 1].x, points[i + 1].y);
 			ctx.lineWidth = p.lineWidth;
 			ctx.strokeStyle = p.lineColour;
+			ctx.closePath();
 			ctx.stroke();
 		}
 	}

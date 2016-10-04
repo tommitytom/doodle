@@ -3,6 +3,7 @@ import PresetEditor from './PresetEditor';
 import Whitney from './Apps/Whitney';
 import LineFuck from './Apps/LineFuck';
 import HexTile from './Apps/HexTile';
+import DotMove from './Apps/DotMove';
 
 import * as Util from './Util';
 
@@ -11,6 +12,7 @@ window.onload = function() {
 	editor.addAppType('Whitney', Whitney);
 	editor.addAppType('LineFuck', LineFuck);
 	editor.addAppType('HexTile', HexTile);
+	editor.addAppType('DotMove', DotMove);
 
 	if (Util.getURLParameter('hide') === 'true') {
 		editor.hideSettings();
