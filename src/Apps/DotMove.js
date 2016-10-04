@@ -29,7 +29,7 @@ export default class DotMove extends CanvasApp {
 					minimum: 1,
 					maximum: 100,
 					step: 1,
-					default: 10
+					default: 8
 				},
 				/*speed: {
 					type: 'number',
@@ -43,7 +43,7 @@ export default class DotMove extends CanvasApp {
 					minimum: 1,
 					maximum: 1000,
 					step: 1,
-					default: 100
+					default: 160
 				}
 			}
 		};
