@@ -80,9 +80,8 @@ export default class DotMove extends CanvasApp {
 			xMod -= data.spacing;
 
 			for (let x = 0; x < dotCount.x; x++) {
-				let colId = x % 2;
-
-				let colOff = colId * 2 - 1,
+				let colId = x % 2,
+					colOff = colId * 2 - 1,
 					xOff = xMod,
 					yOff = 0;
 

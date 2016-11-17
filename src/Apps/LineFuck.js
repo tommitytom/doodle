@@ -24,14 +24,16 @@ export default class LineFuck extends CanvasApp {
 	update(delta) {
 		this.fitToContainer();
 
-		let canvas = this._canvas,
+		const 
+			canvas = this._canvas,
 			ctx = this._context,
 			data = this._data,
 			maxX = canvas.width * 2,
 			maxY = canvas.height * 2,
 			lineWidth = data.lineWidth > 0.25 ? data.lineWidth : 0.25,
-			lineSpacing = lineWidth * 2,
-			rotDelta = null;
+			lineSpacing = lineWidth * 2;
+
+		let rotDelta = null;
 
 		ctx.fillStyle = 'white';
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -44,18 +46,18 @@ export default class LineFuck extends CanvasApp {
 		ctx.lineWidth = lineWidth;
 		
 		if (this._vertical) {
-			for (var x = -maxX; x < maxX; x += lineSpacing) {
+			for (let x = -maxX; x < maxX; x += lineSpacing) {
 				drawLine(ctx, x, -maxY, x, maxY);
 			}
 		} else {
-			for (var y = -maxY; y < maxY; y += lineSpacing) {
+			for (let y = -maxY; y < maxY; y += lineSpacing) {
 				drawLine(ctx, -maxX, y, maxX, y);
 			}
 		}
 
 		ctx.restore();
 
-		let delay = 1000 / this._data.updateRate;
+		const delay = 1000 / this._data.updateRate;
 
 		this._lastFlip += delta;
 		if (this._lastFlip > delay) {

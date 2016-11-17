@@ -9,7 +9,7 @@ function rgba(r, g, b, a) {
 }
 
 function getColor(ratio, alpha) {
-	let pi2 = Math.PI * 2,
+	const pi2 = Math.PI * 2,
 		v = pi2 * ratio,
 		r = (0.5 + Math.cos(v) * 0.5) * 255,
 		g = (0.5 + Math.cos(v + pi2 / 3.0) * 0.5) * 255,
@@ -36,7 +36,7 @@ export default class Whitney extends CanvasApp {
 	update(delta) {
 		this.fitToContainer();
 
-		let data = this._data,
+		const data = this._data,
 			canvas = this._canvas,
 			ctx = this._context;
 
@@ -73,12 +73,13 @@ export default class Whitney extends CanvasApp {
 			}
 		}
 
-		let speed = 1 / (data.duration * 1000);
+		const speed = 1 / (data.duration * 1000);
 		data.position = (data.position + speed * delta) % 1;
 	}
 
 	_updatePoint(idx, arrIdx) {
-		let data = this._data,
+		const 
+			data = this._data,
 			ratio = idx / (data.pointCount - 1),
 			distanceRange = data.maxDistance - data.minDistance,
 			distance = (data.maxDistance - ratio * distanceRange) * data.zoom * 0.5,
@@ -98,12 +99,13 @@ export default class Whitney extends CanvasApp {
 	}
 
 	_scale(items, count) {
-		let size = Math.min(this._canvas.width, this._canvas.height),
+		const
+			size = Math.min(this._canvas.width, this._canvas.height),
 			hw = this._canvas.width / 2,
 			hh = this._canvas.height / 2;
 
 		for (let i = 0; i < count; ++i) {
-			let item = items[i];
+			const item = items[i];
 			item.x = item.x * size + hw;
 			item.y = item.y * size + hh;
 			item.radius *= size;
@@ -111,9 +113,9 @@ export default class Whitney extends CanvasApp {
 	}
 
 	_drawCircles(points, count) {
-		let ctx = this._context;
+		const ctx = this._context;
 		for (let i = 0; i < count; ++i) {
-			let p = points[i];
+			const p = points[i];
 			ctx.beginPath();
 			ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2, false);
 			ctx.fillStyle = p.dotColour;
@@ -123,9 +125,9 @@ export default class Whitney extends CanvasApp {
 	}
 
 	_drawLines(points, count) {
-		let ctx = this._context;
+		const ctx = this._context;
 		for (let i = 0; i < count - 1; ++i) {
-			let p = points[i];
+			const p = points[i];
 			ctx.beginPath();
 			ctx.moveTo(p.x, p.y);
 			ctx.lineTo(points[i + 1].x, points[i + 1].y);
