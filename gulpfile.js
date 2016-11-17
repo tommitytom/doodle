@@ -10,6 +10,7 @@ const htmlmin = require('gulp-htmlmin');
 const cleanCSS = require('gulp-clean-css');
 const minimist = require('minimist');
 const sftp = require('gulp-sftp');
+const browserSync = require('browser-sync').create();
 
 const args = minimist(process.argv.slice(2));
 
@@ -21,6 +22,7 @@ function compile() {
 	return gulp.src(paths.scripts, { base: './src' })
 		//.pipe(sourcemaps.init())
 		.pipe(babel())
+		.on('error', swallowError)
 		//.pipe(sourcemaps.write('.'))
 		.pipe(gulp.dest('./build/intermediate'));
 }
@@ -56,6 +58,11 @@ function minifyCss() {
 		.pipe(gulp.dest('./build'));
 };
 
+function swallowError(error) {
+	console.log(error.toString());
+	this.emit('end');
+}
+
 gulp.task('compile', compile);
 gulp.task('browserify', ['compile'], browserifyCode);
 gulp.task('minify-js', ['browserify'], minifyJs);
@@ -87,6 +94,25 @@ gulp.task('upload', function() {
 		}));
 });
 
-gulp.task('vet', lint);
+gulp.task('js-watch', ['build'], function (done) {
+	browserSync.reload();
+	done();
+});
+
+gulp.task('serve', ['build'], function () {
+	browserSync.init({
+		server: {
+			baseDir: './src',
+			routes: {
+				'/build': './build'
+			}
+		}
+	});
+
+	gulp.watch(paths.scripts, ['js-watch']);
+});
+
 gulp.task('watch', ['build'], () => { gulp.watch(paths.scripts, ['build']); });
+
+gulp.task('vet', lint);
 gulp.task('default', ['build']);
