@@ -4,6 +4,7 @@ import Whitney from './Apps/Whitney';
 import LineFuck from './Apps/LineFuck';
 import HexTile from './Apps/HexTile';
 import DotMove from './Apps/DotMove';
+import GeomMirror from './Apps/GeomMirror';
 
 import * as Util from './Util';
 
@@ -13,6 +14,7 @@ window.onload = function() {
 	editor.addAppType('LineFuck', LineFuck);
 	editor.addAppType('HexTile', HexTile);
 	editor.addAppType('DotMove', DotMove);
+	editor.addAppType('GeomMirror', GeomMirror);
 
 	if (Util.getURLParameter('hide') === 'true') {
 		editor.hideSettings();
