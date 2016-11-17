@@ -37,10 +37,26 @@ export default class CanvasApp extends App {
 		this._canvas = null;
 		this._context = null;
 		this._painter = null;
+
+		this._clickPos = { x: 0, y: 0 };
+		this._mousePos = { x: 0, y: 0 };
+		this._mouseDown = false;
 	}
 
 	get painter() {
 		return this._painter;
+	}
+
+	get clickPos() {
+		return this._clickPos;
+	}
+
+	get mousePos() {
+		return this._mousePos;
+	}
+
+	get mouseDown() {
+		return this._mouseDown;
 	}
 
 	render() {
@@ -60,5 +76,31 @@ export default class CanvasApp extends App {
 		this._canvas = document.getElementById(this.id);
 		this._context = this._canvas.getContext('2d');
 		this._painter = new Painter(this._canvas, this._context);
+
+		this._canvas.onmousedown = e => { return this._handleMouseDown(e); };
+		this._canvas.onmouseup = e => { return this._handleMouseUp(e); };
+		this._canvas.onmousemove = e => { return this._handleMouseMove(e); };
 	}
+
+	_handleMouseDown(e) {
+		this._mouseDown = true;
+		this._mousePos = { x: e.x, y: e.y };
+		this._clickPos = this._mousePos;
+		this.onMouseDown();
+	}
+
+	_handleMouseUp(e) {
+		this._mouseDown = false;
+		this._mousePos = { x: e.x, y: e.y };
+		this.onMouseUp();
+	}
+
+	_handleMouseMove(e) {
+		this._mousePos = { x: e.x, y: e.y };
+		this.onMouseMove();
+	}
+
+	onMouseDown() {}
+	onMouseUp() {}
+	onMouseMove() {}
 }
